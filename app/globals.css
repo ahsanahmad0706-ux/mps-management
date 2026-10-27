@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+:root {
+  /* Logo-derived palette — calm blues, white base, light red accents */
+  --mps-navy: #2e3192;
+  --mps-navy-hover: #252884;
+  --mps-sky: #dbeafe;
+  --mps-sky-soft: #eff6ff;
+  --mps-red: #e11d2e;
+  --mps-red-soft: #fef2f2;
+  --mps-muted: #64748b;
+  --mps-bg: #ffffff;
+  --background: var(--mps-bg);
+  --foreground: #1e293b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-mps-navy: var(--mps-navy);
+  --color-mps-navy-hover: var(--mps-navy-hover);
+  --color-mps-sky: var(--mps-sky);
+  --color-mps-sky-soft: var(--mps-sky-soft);
+  --color-mps-red: var(--mps-red);
+  --color-mps-muted: var(--mps-muted);
+  --font-sans: var(--font-mps-sans);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-mps-sans), "Segoe UI", sans-serif;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-modal-root,
+  .print-modal-root * {
+    visibility: visible !important;
+  }
+
+  .print-modal-root {
+    position: static !important;
+    inset: auto !important;
+    display: block !important;
+    background: white !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+  }
+
+  .print-modal-shell {
+    max-height: none !important;
+    max-width: none !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+
+  .print-area {
+    padding: 0 !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+}
