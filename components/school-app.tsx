@@ -70,6 +70,7 @@ export function SchoolApp() {
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [supabaseReady, setSupabaseReady] = useState(false);
 
+  // Restore saved session from localStorage on initial load
   useEffect(() => {
     const now = new Date();
     setAttendance(
@@ -80,6 +81,18 @@ export function SchoolApp() {
       ),
     );
     setSupabaseReady(isSupabaseConfigured());
+
+    try {
+      const savedSession = localStorage.getItem("mps_user_session");
+      if (savedSession) {
+        const parsedSession = JSON.parse(savedSession);
+        if (parsedSession && parsedSession.id && parsedSession.role) {
+          setSession(parsedSession);
+        }
+      }
+    } catch (e) {
+      console.error("Error restoring session:", e);
+    }
   }, []);
 
   function handleLogin(e: React.FormEvent) {
@@ -98,17 +111,21 @@ export function SchoolApp() {
       return;
     }
 
-    setSession({
+    const sessionData: SessionUser = {
       id: match.id,
       name: match.name,
       role: match.role,
       className: match.className,
-    });
+    };
+
+    setSession(sessionData);
+    localStorage.setItem("mps_user_session", JSON.stringify(sessionData));
     setPassword("");
   }
 
   function handleLogout() {
     setSession(null);
+    localStorage.removeItem("mps_user_session");
     setError("");
   }
 
