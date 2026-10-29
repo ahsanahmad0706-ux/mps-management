@@ -237,7 +237,6 @@ export function SchoolApp() {
                 Sign in to {PORTALS.find((p) => p.id === portal)?.label} Portal
               </button>
 
-              // DELETE THIS BLOCK (Lines 240 to 247)
               <div className="mt-4 rounded-md bg-[#EFF6FF] px-3 py-2.5 text-xs text-[#64748B]">
                 <p className="font-semibold text-[#2E3192]">Demo credentials</p>
                 <ul className="mt-1 space-y-0.5 font-mono">
