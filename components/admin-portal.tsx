@@ -52,6 +52,8 @@ export function AdminPortal(props: AdminPortalProps) {
   const [showAddStaff, setShowAddStaff] = useState(false);
   const [showAddClass, setShowAddClass] = useState(false);
   const [showAddNotice, setShowAddNotice] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
+  const [addingMoreDetailsStudent, setAddingMoreDetailsStudent] = useState<any | null>(null);
   const [staffCategory, setStaffCategory] = useState("Teacher");
   const [editingExamStudent, setEditingExamStudent] = useState<any | null>(null);
   const [printModalData, setPrintModalData] = useState<any[] | null>(null);
@@ -200,6 +202,48 @@ export function AdminPortal(props: AdminPortalProps) {
         setStudents((prev) => [data[0], ...prev]);
         setShowAddStudent(false);
         alert("Student registered successfully!");
+      }
+    } catch (err: any) {
+      alert("Unexpected error: " + (err?.message || err));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleUpdateStudentDetails = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!addingMoreDetailsStudent) return;
+    setIsSaving(true);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const updatedPayload = {
+        roll_no: (formData.get("roll_no") as string)?.trim() || addingMoreDetailsStudent.roll_no || "101",
+        gender: (formData.get("gender") as string) || addingMoreDetailsStudent.gender || "Other",
+        dob: (formData.get("dob") as string) || addingMoreDetailsStudent.dob || null,
+        guardian_name: (formData.get("guardian_name") as string)?.trim() || addingMoreDetailsStudent.guardian_name || "N/A",
+        guardian_phone: (formData.get("guardian_phone") as string)?.trim() || addingMoreDetailsStudent.guardian_phone,
+        address: (formData.get("address") as string)?.trim() || addingMoreDetailsStudent.address || "N/A",
+        fee_status: (formData.get("fee_status") as string) || addingMoreDetailsStudent.fee_status || "Pending",
+        status: (formData.get("status") as string) || addingMoreDetailsStudent.status || "Active",
+      };
+
+      const { data, error } = await supabase
+        .from("students")
+        .update(updatedPayload)
+        .eq("admission_no", addingMoreDetailsStudent.admission_no)
+        .select();
+
+      if (error) {
+        alert(`Failed to update student details: ${error.message}`);
+      } else if (data) {
+        setStudents((prev) =>
+          prev.map((s) => (s.admission_no === addingMoreDetailsStudent.admission_no ? { ...s, ...data[0] } : s))
+        );
+        if (selectedStudent?.admission_no === addingMoreDetailsStudent.admission_no) {
+          setSelectedStudent({ ...selectedStudent, ...data[0] });
+        }
+        setAddingMoreDetailsStudent(null);
+        alert("Student details updated successfully!");
       }
     } catch (err: any) {
       alert("Unexpected error: " + (err?.message || err));
@@ -654,6 +698,7 @@ export function AdminPortal(props: AdminPortalProps) {
                   <th className="p-4">Guardian Details</th>
                   <th className="p-4">Fee Status</th>
                   <th className="p-4">Status</th>
+                  <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -685,6 +730,20 @@ export function AdminPortal(props: AdminPortalProps) {
                         <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-[10px] font-bold">
                           {st.status || "Active"}
                         </span>
+                      </td>
+                      <td className="p-4 text-right space-x-2">
+                        <button 
+                          onClick={() => setSelectedStudent(st)} 
+                          className="rounded bg-blue-50 px-2.5 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition"
+                        >
+                          View Details
+                        </button>
+                        <button 
+                          onClick={() => setAddingMoreDetailsStudent(st)} 
+                          className="rounded bg-slate-100 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
+                        >
+                          + Add More Details
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -910,7 +969,151 @@ export function AdminPortal(props: AdminPortalProps) {
         </div>
       )}
 
-      {/* MODAL 2: ADD STAFF */}
+      {/* MODAL 2: VIEW STUDENT DETAILS */}
+      {selectedStudent && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b pb-3">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Student Profile & Details</h2>
+                <p className="text-xs text-blue-600 font-mono font-bold">{selectedStudent.admission_no}</p>
+              </div>
+              <button onClick={() => setSelectedStudent(null)} className="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="p-2.5 bg-gray-50 rounded-xl">
+                <span className="text-gray-400 block text-[10px] uppercase font-bold">Full Name</span>
+                <span className="font-bold text-gray-900 text-sm">{selectedStudent.full_name}</span>
+              </div>
+              <div className="p-2.5 bg-gray-50 rounded-xl">
+                <span className="text-gray-400 block text-[10px] uppercase font-bold">Class & Section</span>
+                <span className="font-bold text-gray-900">{selectedStudent.class_name} ({selectedStudent.section || "A"})</span>
+              </div>
+              <div className="p-2.5 bg-gray-50 rounded-xl">
+                <span className="text-gray-400 block text-[10px] uppercase font-bold">Roll Number</span>
+                <span className="font-bold text-gray-900">{selectedStudent.roll_no || "101"}</span>
+              </div>
+              <div className="p-2.5 bg-gray-50 rounded-xl">
+                <span className="text-gray-400 block text-[10px] uppercase font-bold">Gender & DOB</span>
+                <span className="font-bold text-gray-900">{selectedStudent.gender || "Other"} | {selectedStudent.dob || "N/A"}</span>
+              </div>
+              <div className="p-2.5 bg-gray-50 rounded-xl">
+                <span className="text-gray-400 block text-[10px] uppercase font-bold">Guardian Name</span>
+                <span className="font-bold text-gray-900">{selectedStudent.guardian_name || "Parent"}</span>
+              </div>
+              <div className="p-2.5 bg-gray-50 rounded-xl">
+                <span className="text-gray-400 block text-[10px] uppercase font-bold">Guardian Phone</span>
+                <span className="font-bold text-gray-900 font-mono">{selectedStudent.guardian_phone || "N/A"}</span>
+              </div>
+              <div className="p-2.5 bg-gray-50 rounded-xl col-span-2">
+                <span className="text-gray-400 block text-[10px] uppercase font-bold">Address</span>
+                <span className="font-bold text-gray-900">{selectedStudent.address || "N/A"}</span>
+              </div>
+              <div className="p-2.5 bg-gray-50 rounded-xl">
+                <span className="text-gray-400 block text-[10px] uppercase font-bold">Fee Status</span>
+                <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold ${
+                  selectedStudent.fee_status === "Paid" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                }`}>
+                  {selectedStudent.fee_status || "Pending"}
+                </span>
+              </div>
+              <div className="p-2.5 bg-gray-50 rounded-xl">
+                <span className="text-gray-400 block text-[10px] uppercase font-bold">Academic Status</span>
+                <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-bold">
+                  {selectedStudent.status || "Active"}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center pt-4 border-t">
+              <button
+                type="button"
+                onClick={() => {
+                  setAddingMoreDetailsStudent(selectedStudent);
+                }}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
+              >
+                + Edit / Add More Details
+              </button>
+              <button type="button" onClick={() => setSelectedStudent(null)} className="px-4 py-2 bg-gray-900 text-white rounded-xl text-xs font-bold">
+                Close Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: ADD / EDIT MORE DETAILS */}
+      {addingMoreDetailsStudent && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b pb-3">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Add / Update Student Details</h2>
+                <p className="text-xs text-gray-500">{addingMoreDetailsStudent.full_name} ({addingMoreDetailsStudent.admission_no})</p>
+              </div>
+              <button onClick={() => setAddingMoreDetailsStudent(null)} className="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+
+            <form onSubmit={handleUpdateStudentDetails} className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-gray-600 mb-1">Roll Number</label>
+                  <input name="roll_no" defaultValue={addingMoreDetailsStudent.roll_no || ""} placeholder="e.g. 101" className="w-full p-2 border rounded-lg outline-none" />
+                </div>
+                <div>
+                  <label className="block font-bold text-gray-600 mb-1">Gender</label>
+                  <select name="gender" defaultValue={addingMoreDetailsStudent.gender || "Male"} className="w-full p-2 border rounded-lg bg-white outline-none">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-gray-600 mb-1">Date of Birth</label>
+                  <input type="date" name="dob" defaultValue={addingMoreDetailsStudent.dob || ""} className="w-full p-2 border rounded-lg outline-none bg-white" />
+                </div>
+                <div>
+                  <label className="block font-bold text-gray-600 mb-1">Fee Status</label>
+                  <select name="fee_status" defaultValue={addingMoreDetailsStudent.fee_status || "Pending"} className="w-full p-2 border rounded-lg bg-white outline-none">
+                    <option value="Paid">Paid</option>
+                    <option value="Pending">Pending</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-gray-600 mb-1">Guardian Name</label>
+                  <input name="guardian_name" defaultValue={addingMoreDetailsStudent.guardian_name || ""} placeholder="Parent Name" className="w-full p-2 border rounded-lg outline-none" />
+                </div>
+                <div>
+                  <label className="block font-bold text-gray-600 mb-1">Guardian Phone</label>
+                  <input name="guardian_phone" defaultValue={addingMoreDetailsStudent.guardian_phone || ""} placeholder="10-digit number" className="w-full p-2 border rounded-lg outline-none" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-gray-600 mb-1">Address</label>
+                <textarea name="address" rows={2} defaultValue={addingMoreDetailsStudent.address || ""} placeholder="Full Residential Address" className="w-full p-2 border rounded-lg outline-none resize-none" />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4 border-t">
+                <button type="button" onClick={() => setAddingMoreDetailsStudent(null)} className="px-4 py-2 border rounded-xl font-bold">Cancel</button>
+                <button type="submit" disabled={isSaving} className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700">
+                  {isSaving ? "Updating..." : "Save Details"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: ADD STAFF */}
       {showAddStaff && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
@@ -959,7 +1162,7 @@ export function AdminPortal(props: AdminPortalProps) {
         </div>
       )}
 
-      {/* MODAL 3: ADD CLASS */}
+      {/* MODAL 5: ADD CLASS */}
       {showAddClass && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
@@ -994,7 +1197,7 @@ export function AdminPortal(props: AdminPortalProps) {
         </div>
       )}
 
-      {/* MODAL 4: ADD NOTICE */}
+      {/* MODAL 6: ADD NOTICE */}
       {showAddNotice && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
@@ -1019,7 +1222,7 @@ export function AdminPortal(props: AdminPortalProps) {
         </div>
       )}
 
-      {/* MODAL 5: EXAM MARKS INPUT */}
+      {/* MODAL 7: EXAM MARKS INPUT */}
       {editingExamStudent && (
         <ExamMarksModal
           student={editingExamStudent}
@@ -1031,7 +1234,7 @@ export function AdminPortal(props: AdminPortalProps) {
         />
       )}
 
-      {/* MODAL 6: REPORT CARD PRINT */}
+      {/* MODAL 8: REPORT CARD PRINT */}
       {printModalData && (
         <ReportCardPrintModal cards={printModalData} onClose={() => setPrintModalData(null)} />
       )}
