@@ -9,7 +9,7 @@ import type {
 export const DEMO_CREDENTIALS: UserCredential[] = [
   {
     id: "MPS-ADM-001",
-    name: "Principal Sharma",
+    name: "Principal",
     role: "admin",
     password: "MPS@Admin2024",
   },
