@@ -246,7 +246,7 @@ export function SchoolApp() {
                   <li>Student · MPS-STD-101 / Stud@101</li>
                 </ul>
               </div>
-            </form>
+            </form>//
 
             <p className="mt-4 text-center text-xs text-slate-500">
               {supabaseReady
