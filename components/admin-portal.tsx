@@ -220,11 +220,18 @@ export function AdminPortal(props: AdminPortalProps) {
         roll_no: (formData.get("roll_no") as string)?.trim() || addingMoreDetailsStudent.roll_no || "101",
         gender: (formData.get("gender") as string) || addingMoreDetailsStudent.gender || "Other",
         dob: (formData.get("dob") as string) || addingMoreDetailsStudent.dob || null,
+        blood_group: (formData.get("blood_group") as string) || addingMoreDetailsStudent.blood_group || "",
+        aadhaar_no: (formData.get("aadhaar_no") as string)?.trim() || addingMoreDetailsStudent.aadhaar_no || "",
         guardian_name: (formData.get("guardian_name") as string)?.trim() || addingMoreDetailsStudent.guardian_name || "N/A",
+        mother_name: (formData.get("mother_name") as string)?.trim() || addingMoreDetailsStudent.mother_name || "",
         guardian_phone: (formData.get("guardian_phone") as string)?.trim() || addingMoreDetailsStudent.guardian_phone,
+        emergency_phone: (formData.get("emergency_phone") as string)?.trim() || addingMoreDetailsStudent.emergency_phone || "",
+        email: (formData.get("email") as string)?.trim() || addingMoreDetailsStudent.email || "",
         address: (formData.get("address") as string)?.trim() || addingMoreDetailsStudent.address || "N/A",
+        transport_mode: (formData.get("transport_mode") as string) || addingMoreDetailsStudent.transport_mode || "Self",
         fee_status: (formData.get("fee_status") as string) || addingMoreDetailsStudent.fee_status || "Pending",
         status: (formData.get("status") as string) || addingMoreDetailsStudent.status || "Active",
+        medical_notes: (formData.get("medical_notes") as string)?.trim() || addingMoreDetailsStudent.medical_notes || "",
       };
 
       const { data, error } = await supabase
@@ -1044,68 +1051,130 @@ export function AdminPortal(props: AdminPortalProps) {
         </div>
       )}
 
-      {/* MODAL 3: ADD / EDIT MORE DETAILS */}
+      {/* MODAL 3: ADD / EDIT MORE DETAILS (COMPREHENSIVE MULTI-SECTION) */}
       {addingMoreDetailsStudent && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 my-8">
             <div className="flex justify-between items-center border-b pb-3">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">Add / Update Student Details</h2>
+                <h2 className="text-lg font-bold text-gray-900">Add / Update Comprehensive Student Details</h2>
                 <p className="text-xs text-gray-500">{addingMoreDetailsStudent.full_name} ({addingMoreDetailsStudent.admission_no})</p>
               </div>
               <button onClick={() => setAddingMoreDetailsStudent(null)} className="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
             </div>
 
-            <form onSubmit={handleUpdateStudentDetails} className="space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-gray-600 mb-1">Roll Number</label>
-                  <input name="roll_no" defaultValue={addingMoreDetailsStudent.roll_no || ""} placeholder="e.g. 101" className="w-full p-2 border rounded-lg outline-none" />
-                </div>
-                <div>
-                  <label className="block font-bold text-gray-600 mb-1">Gender</label>
-                  <select name="gender" defaultValue={addingMoreDetailsStudent.gender || "Male"} className="w-full p-2 border rounded-lg bg-white outline-none">
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-gray-600 mb-1">Date of Birth</label>
-                  <input type="date" name="dob" defaultValue={addingMoreDetailsStudent.dob || ""} className="w-full p-2 border rounded-lg outline-none bg-white" />
-                </div>
-                <div>
-                  <label className="block font-bold text-gray-600 mb-1">Fee Status</label>
-                  <select name="fee_status" defaultValue={addingMoreDetailsStudent.fee_status || "Pending"} className="w-full p-2 border rounded-lg bg-white outline-none">
-                    <option value="Paid">Paid</option>
-                    <option value="Pending">Pending</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-gray-600 mb-1">Guardian Name</label>
-                  <input name="guardian_name" defaultValue={addingMoreDetailsStudent.guardian_name || ""} placeholder="Parent Name" className="w-full p-2 border rounded-lg outline-none" />
-                </div>
-                <div>
-                  <label className="block font-bold text-gray-600 mb-1">Guardian Phone</label>
-                  <input name="guardian_phone" defaultValue={addingMoreDetailsStudent.guardian_phone || ""} placeholder="10-digit number" className="w-full p-2 border rounded-lg outline-none" />
-                </div>
-              </div>
-
+            <form onSubmit={handleUpdateStudentDetails} className="space-y-4 text-xs max-h-[70vh] overflow-y-auto pr-1">
+              {/* SECTION 1: PERSONAL & IDENTIFICATION */}
               <div>
-                <label className="block font-bold text-gray-600 mb-1">Address</label>
-                <textarea name="address" rows={2} defaultValue={addingMoreDetailsStudent.address || ""} placeholder="Full Residential Address" className="w-full p-2 border rounded-lg outline-none resize-none" />
+                <h3 className="font-bold text-blue-700 uppercase text-[10px] tracking-wider mb-2 border-b pb-1">1. Personal & Identification</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Roll Number</label>
+                    <input name="roll_no" defaultValue={addingMoreDetailsStudent.roll_no || ""} placeholder="e.g. 101" className="w-full p-2 border rounded-lg outline-none" />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Gender</label>
+                    <select name="gender" defaultValue={addingMoreDetailsStudent.gender || "Male"} className="w-full p-2 border rounded-lg bg-white outline-none">
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Date of Birth</label>
+                    <input type="date" name="dob" defaultValue={addingMoreDetailsStudent.dob || ""} className="w-full p-2 border rounded-lg outline-none bg-white" />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Blood Group</label>
+                    <select name="blood_group" defaultValue={addingMoreDetailsStudent.blood_group || "O+"} className="w-full p-2 border rounded-lg bg-white outline-none">
+                      <option value="">Select</option>
+                      <option value="A+">A+</option>
+                      <option value="A-">A-</option>
+                      <option value="B+">B+</option>
+                      <option value="B-">B-</option>
+                      <option value="O+">O+</option>
+                      <option value="O-">O-</option>
+                      <option value="AB+">AB+</option>
+                      <option value="AB-">AB-</option>
+                    </select>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block font-bold text-gray-600 mb-1">Aadhaar / National ID No</label>
+                    <input name="aadhaar_no" defaultValue={addingMoreDetailsStudent.aadhaar_no || ""} placeholder="12-digit Aadhaar Number" className="w-full p-2 border rounded-lg outline-none" />
+                  </div>
+                </div>
               </div>
 
-              <div className="flex justify-end space-x-2 pt-4 border-t">
+              {/* SECTION 2: FAMILY & CONTACT INFO */}
+              <div>
+                <h3 className="font-bold text-blue-700 uppercase text-[10px] tracking-wider mb-2 border-b pb-1">2. Family & Contact Information</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Father / Guardian Name</label>
+                    <input name="guardian_name" defaultValue={addingMoreDetailsStudent.guardian_name || ""} placeholder="Father's Full Name" className="w-full p-2 border rounded-lg outline-none" />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Mother's Name</label>
+                    <input name="mother_name" defaultValue={addingMoreDetailsStudent.mother_name || ""} placeholder="Mother's Full Name" className="w-full p-2 border rounded-lg outline-none" />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Primary Guardian Phone</label>
+                    <input name="guardian_phone" defaultValue={addingMoreDetailsStudent.guardian_phone || ""} placeholder="10-digit primary number" className="w-full p-2 border rounded-lg outline-none" />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Emergency / Alternate Contact</label>
+                    <input name="emergency_phone" defaultValue={addingMoreDetailsStudent.emergency_phone || ""} placeholder="Secondary phone number" className="w-full p-2 border rounded-lg outline-none" />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block font-bold text-gray-600 mb-1">Student / Parent Email</label>
+                    <input type="email" name="email" defaultValue={addingMoreDetailsStudent.email || ""} placeholder="email@example.com" className="w-full p-2 border rounded-lg outline-none" />
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION 3: RESIDENCE, TRANSPORT & STATUS */}
+              <div>
+                <h3 className="font-bold text-blue-700 uppercase text-[10px] tracking-wider mb-2 border-b pb-1">3. Address, Transport & Status</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="block font-bold text-gray-600 mb-1">Full Residential Address</label>
+                    <textarea name="address" rows={2} defaultValue={addingMoreDetailsStudent.address || ""} placeholder="Complete street address, locality, city" className="w-full p-2 border rounded-lg outline-none resize-none" />
+                  </div>
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Transport Mode</label>
+                    <select name="transport_mode" defaultValue={addingMoreDetailsStudent.transport_mode || "Self"} className="w-full p-2 border rounded-lg bg-white outline-none">
+                      <option value="School Bus">School Bus</option>
+                      <option value="Self / Private">Self / Private</option>
+                      <option value="Walker">Walker</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Fee Status</label>
+                    <select name="fee_status" defaultValue={addingMoreDetailsStudent.fee_status || "Pending"} className="w-full p-2 border rounded-lg bg-white outline-none">
+                      <option value="Paid">Paid</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Partial">Partial</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Academic Status</label>
+                    <select name="status" defaultValue={addingMoreDetailsStudent.status || "Active"} className="w-full p-2 border rounded-lg bg-white outline-none">
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                      <option value="Transferred">Transferred / TC Issued</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-bold text-gray-600 mb-1">Medical Notes / Allergies</label>
+                    <input name="medical_notes" defaultValue={addingMoreDetailsStudent.medical_notes || ""} placeholder="e.g. Asthma, No specific allergy" className="w-full p-2 border rounded-lg outline-none" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4 border-t sticky bottom-0 bg-white">
                 <button type="button" onClick={() => setAddingMoreDetailsStudent(null)} className="px-4 py-2 border rounded-xl font-bold">Cancel</button>
-                <button type="submit" disabled={isSaving} className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700">
-                  {isSaving ? "Updating..." : "Save Details"}
+                <button type="submit" disabled={isSaving} className="px-5 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700">
+                  {isSaving ? "Saving..." : "Save All Details"}
                 </button>
               </div>
             </form>
