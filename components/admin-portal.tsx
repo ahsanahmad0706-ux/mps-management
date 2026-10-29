@@ -62,9 +62,15 @@ export function AdminPortal(props: AdminPortalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // --- INITIAL DATA FETCHING ---
+  // --- INITIAL DATA FETCHING & SESSION RESTORATION ---
   useEffect(() => {
     fetchAllData();
+    
+    // Restore saved active tab from localStorage on refresh
+    const savedTab = localStorage.getItem("mps_admin_active_tab");
+    if (savedTab) {
+      setActiveTab(savedTab as any);
+    }
   }, []);
 
   useEffect(() => {
@@ -72,6 +78,11 @@ export function AdminPortal(props: AdminPortalProps) {
       fetchExamMarks();
     }
   }, [activeTab, selectedExamClass, selectedExamSection, selectedTermId]);
+
+  const handleTabChange = (tab: "exams" | "students" | "staff" | "classes" | "fees" | "notices") => {
+    setActiveTab(tab);
+    localStorage.setItem("mps_admin_active_tab", tab);
+  };
 
   const fetchAllData = async () => {
     setIsLoading(true);
@@ -512,7 +523,7 @@ export function AdminPortal(props: AdminPortalProps) {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => handleTabChange(tab.id as any)}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
                 activeTab === tab.id ? "bg-gray-900 text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
