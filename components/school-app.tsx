@@ -61,16 +61,15 @@ export function SchoolApp() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [session, setSession] = useState<SessionUser | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  const [credentials, setCredentials] =
-    useState<UserCredential[]>(DEMO_CREDENTIALS);
+  const [credentials, setCredentials] = useState<UserCredential[]>(DEMO_CREDENTIALS);
   const [teachers, setTeachers] = useState<Teacher[]>(DEMO_TEACHERS);
   const [students, setStudents] = useState<Student[]>(DEMO_STUDENTS);
   const [fees, setFees] = useState<FeeRecord[]>(DEMO_FEES);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [supabaseReady, setSupabaseReady] = useState(false);
 
-  // Restore saved session from localStorage on initial load
   useEffect(() => {
     const now = new Date();
     setAttendance(
@@ -92,6 +91,8 @@ export function SchoolApp() {
       }
     } catch (e) {
       console.error("Error restoring session:", e);
+    } finally {
+      setIsCheckingAuth(false);
     }
   }, []);
 
@@ -126,7 +127,19 @@ export function SchoolApp() {
   function handleLogout() {
     setSession(null);
     localStorage.removeItem("mps_user_session");
+    localStorage.removeItem("mps_admin_active_tab");
     setError("");
+  }
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+        <div className="text-center space-y-2">
+          <div className="w-10 h-10 border-4 border-[#2E3192] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-bold text-gray-500">Loading portal session...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

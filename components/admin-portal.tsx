@@ -65,11 +65,19 @@ export function AdminPortal(props: AdminPortalProps) {
   // --- INITIAL DATA FETCHING & SESSION RESTORATION ---
   useEffect(() => {
     fetchAllData();
-    
-    // Restore saved active tab from localStorage on refresh
-    const savedTab = localStorage.getItem("mps_admin_active_tab");
-    if (savedTab) {
-      setActiveTab(savedTab as any);
+
+    // Restore saved active tab on page reload (URL priority > LocalStorage)
+    if (typeof window !== "undefined") {
+      const validTabs = ["exams", "students", "staff", "classes", "fees", "notices"];
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabFromUrl = urlParams.get("tab");
+      const savedTab = localStorage.getItem("mps_admin_active_tab");
+
+      if (tabFromUrl && validTabs.includes(tabFromUrl)) {
+        setActiveTab(tabFromUrl as any);
+      } else if (savedTab && validTabs.includes(savedTab)) {
+        setActiveTab(savedTab as any);
+      }
     }
   }, []);
 
@@ -79,9 +87,15 @@ export function AdminPortal(props: AdminPortalProps) {
     }
   }, [activeTab, selectedExamClass, selectedExamSection, selectedTermId]);
 
+  // Tab change handler with URL and LocalStorage synchronization
   const handleTabChange = (tab: "exams" | "students" | "staff" | "classes" | "fees" | "notices") => {
     setActiveTab(tab);
     localStorage.setItem("mps_admin_active_tab", tab);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("tab", tab);
+      window.history.replaceState({}, "", url.toString());
+    }
   };
 
   const fetchAllData = async () => {
